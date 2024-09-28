@@ -1,0 +1,120 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+// Estrutura para armazenar informações do usuário
+typedef struct {
+    char nomeUsuario[50];
+    char senha[256]; // Para armazenar a senha criptografada
+} Usuario;
+
+Usuario usuarios[100]; // Simples base de dados
+int totalUsuarios = 0;
+
+// Função para validar a força da senha
+int validarSenha(const char *senha) {
+    if (strlen(senha) < 8) return 0; // Mínimo de 8 caracteres
+
+    int temLetra = 0, temNumero = 0;
+    for (int i = 0; senha[i] != '\0'; i++) {
+        if (isalpha(senha[i])) temLetra = 1;
+        if (isdigit(senha[i])) temNumero = 1;
+    }
+    return temLetra && temNumero;
+}
+
+// Função para criptografar a senha (apenas um exemplo simples)
+void criptografar(const char *senha, char *senhaCriptografada) {
+    // Exemplo simples: apenas inverte a string da senha
+    int len = strlen(senha);
+    for (int i = 0; i < len; i++) {
+        senhaCriptografada[i] = senha[len - 1 - i];
+    }
+    senhaCriptografada[len] = '\0';
+}
+
+// Função para verificar login
+int verificarLogin(const char *nomeUsuario, const char *senhaCriptografada) {
+    for (int i = 0; i < totalUsuarios; i++) {
+        if (strcmp(usuarios[i].nomeUsuario, nomeUsuario) == 0 && 
+            strcmp(usuarios[i].senha, senhaCriptografada) == 0) {
+            return 1; // Login bem-sucedido
+        }
+    }
+    return 0; // Falha no login
+}
+
+// Função para criar nova conta
+void criarConta() {
+    char nomeUsuario[50];
+    char senha[256];
+    char senhaCriptografada[256];
+
+    printf("Digite um nome de usuario: ");
+    scanf("%s", nomeUsuario);
+    
+    printf("Digite uma senha (minimo 8 caracteres, incluindo letras e numeros): ");
+    scanf("%s", senha);
+    
+    if (validarSenha(senha)) {
+        criptografar(senha, senhaCriptografada);
+        strcpy(usuarios[totalUsuarios].nomeUsuario, nomeUsuario);
+        strcpy(usuarios[totalUsuarios].senha, senhaCriptografada);
+        totalUsuarios++;
+        printf("Conta criada com sucesso!\n");
+    } else {
+        printf("Senha fraca! Tente novamente.\n");
+        criarConta(); // Tenta novamente
+    }
+}
+
+// Função para fazer login
+void fazerLogin() {
+    char nomeUsuario[50];
+    char senha[256];
+    char senhaCriptografada[256];
+
+    printf("Digite seu nome de usuario: ");
+    scanf("%s", nomeUsuario);
+    
+    printf("Digite sua senha: ");
+    scanf("%s", senha);
+    
+    criptografar(senha, senhaCriptografada);
+    
+    if (verificarLogin(nomeUsuario, senhaCriptografada)) {
+        printf("Login bem-sucedido!\n");
+        // Acesso ao sistema
+    } else {
+        printf("Usuario ou senha incorretos!\n");
+    }
+}
+
+// Função principal
+int main() {
+    int opcao;
+
+    while (1) {
+        printf("1. Criar nova conta\n");
+        printf("2. Fazer login\n");
+        printf("3. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+        
+        switch (opcao) {
+            case 1:
+                criarConta();
+                break;
+            case 2:
+                fazerLogin();
+                break;
+            case 3:
+                exit(0);
+            default:
+                printf("Opcao invalida! Tente novamente.\n");
+        }
+    }
+
+    return 0;
+}
